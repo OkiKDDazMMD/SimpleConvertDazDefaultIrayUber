@@ -1,0 +1,75 @@
+// DAZ Studio version 4.10.0.123 filetype DAZ Script
+// License: CC Attribution 3.0 Unported (https://creativecommons.org/licenses/by/3.0/)
+// 
+
+	var oFileNameScript = DzFile(getScriptFileName());
+	var sFileName = oFileNameScript.path()+"/!Iray Uber Base.duf";
+	const oDir = new DzDir(sFileName);
+	if( !oDir.exists (sFileName)){
+			MessageBox.critical( qsTr("No exist !Iray Uber Base.duf"), qsTr("Critical"), qsTr("&OK") );
+			return;
+	}
+
+
+	var nMaxSelectedNodes = Scene.getNumSelectedNodes();
+	if(nMaxSelectedNodes<1){
+		MessageBox.critical( qsTr("Selected Nodes"), qsTr("Critical"), qsTr("&OK") );
+		return;
+	}
+
+	var aShape = [];
+	var bPush;
+	var aNode = Scene.getSelectedNodeList();
+
+	for(var i=0; i<aNode.length; i++){
+		var oTempObj = aNode[i].getObject();
+		if (oTempObj != null) {
+			bPush = true;
+			var oTempShape = oTempObj.getCurrentShape();
+			for(var j=0; j<aShape.length; j++){
+				if(aShape[j]==oTempShape){
+					bPush = false;
+					break;
+				}
+			}
+			aShape.push(oTempShape);
+		}
+	}
+
+	var aMaterial = [];
+	for(var i=0; i<aShape.length; i++){
+		if(aShape[i].getNumSelectedMaterials()>0){
+			var aAllSelectedMaterials = aShape[i].getAllSelectedMaterials();
+			for( var j = 0; j < aAllSelectedMaterials.length; j++ ){
+				var sName = aAllSelectedMaterials[j].getMaterialName();
+				if(sName == "DAZ Studio Default"){
+					aMaterial.push(aAllSelectedMaterials[j]);
+				}
+			}
+		}
+		else
+		{
+			var aAllMaterials = aShape[i].getAllMaterials();
+			for( var j = 0; j < aAllMaterials.length; j++ ){
+				var sName = aAllMaterials[j].getMaterialName();
+				if(sName == "DAZ Studio Default"){
+					aAllMaterials[j].select(true)
+					aMaterial.push(aAllMaterials[j]);
+				}
+			}
+		}
+	}
+
+	for(var i=0; i<aMaterial.length; i++){
+		var oFloatProperty = aMaterial[i].findPropertyByLabel("Glossiness");
+		if( oFloatProperty.inherits("DzFloatProperty") ){
+			var nValue = oFloatProperty.getValue();
+			oFloatProperty.setValue( nValue/10.0 );
+		}
+	}
+
+	var oContentMgr = App.getContentMgr();
+	oContentMgr.openFile(sFileName, true);
+
+
+
