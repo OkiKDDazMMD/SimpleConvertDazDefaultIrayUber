@@ -2,7 +2,19 @@
 // License: CC Attribution 3.0 Unported (https://creativecommons.org/licenses/by/3.0/)
 // 
 
+	var s_bShiftPressed = false;
+	var nReducePar = 10.0;
 
+	// If the "Action" global transient is defined, and its the correct type
+	if( typeof( Action ) != "undefined" && Action.inherits( "DzScriptAction" ) ){
+		// If the current key sequence for the action is not pressed
+		if( !App.isKeySequenceDown( Action.shortcut ) ){
+			updateModifierKeyState();
+		}
+	// If the "Action" global transient is not defined
+	} else if( typeof( Action ) == "undefined" ) {
+		updateModifierKeyState();
+	}
 
 	var nMaxSelectedNodes = Scene.getNumSelectedNodes();
 	if(nMaxSelectedNodes<1){
@@ -13,6 +25,53 @@
 	var aShape = [];
 	var bPush;
 	var aNode = Scene.getSelectedNodeList();
+
+	if(s_bShiftPressed)
+	{
+		// Create a basic dialog
+		var oDlg = new DzBasicDialog();
+
+		// Get the wrapped widget for the dialog
+		var oDlgWgt = oDlg.getWidget();
+	
+		// Set the title of the dialog
+		oDlg.caption = "Simple Convert Daz Default Iray Uber";
+	
+		// Strip the space for a settings key
+		var sKey = oDlg.caption.replace( / /g, "" ) + "Dlg";
+	
+		// Set an [unique] object name on the wrapped dialog widget;
+		// this is used for recording position and size separately
+		// from all other [uniquely named] DzBasicDialog instances
+		oDlgWgt.objectName = sKey;
+
+		var oVGBDlg = new DzVGroupBox( oDlg );
+
+		//
+		var wVGBReduce = new DzVGroupBox( oVGBDlg );
+		wVGBReduce.title = "Reduce :";
+		wVGBReduce.columns = 2;
+		g_wEditPar = new DzLineEdit( wVGBReduce );
+		g_wEditPar.minWidth = 50;
+		g_wEditPar.text = nReducePar.toString();
+		g_wEditPar.readOnly = false;
+		g_wLabelPar = new DzLabel( wVGBReduce );
+		g_wLabelPar.text = "%"
+
+		// Add the GroupBox to the dialog
+		oDlg.addWidget( oVGBDlg, 0, DzWidget.AlignCenter );
+
+		// Get the minimum size of the dialog
+		var sizeHint = oDlgWgt.minimumSizeHint;
+
+		if(oDlg.exec()){
+			nReducePar = parseFloat(g_wEditPar.text);
+		}
+		else{
+			return;
+		}
+
+	}
 
 	for(var i=0; i<aNode.length; i++){
 		var oTempObj = aNode[i].getObject();
@@ -57,9 +116,17 @@
 		var oFloatProperty = aMaterial[i].findPropertyByLabel("Glossiness");
 		if( oFloatProperty.inherits("DzFloatProperty") ){
 			var nValue = oFloatProperty.getValue();
-			oFloatProperty.setValue( nValue/10.0 );
+			oFloatProperty.setValue( nValue*nReducePar/100.0 );
 		}
 	}
 
 
-
+	/*********************************************************************/
+	// void : A function for updating the keyboard modifier state
+	function updateModifierKeyState(){
+		// Get the current modifier key state
+		var nModifierState = App.modifierKeyState();
+		// Update variables that hold modifier key state
+		s_bShiftPressed = (nModifierState & 0x02000000) != 0;
+	};
+	
