@@ -3,7 +3,7 @@
 // 
 
 	var s_bShiftPressed = false;
-	var nReducePar = 10.0;
+	var nReducePar = 50.0;
 
 	// If the "Action" global transient is defined, and its the correct type
 	if( typeof( Action ) != "undefined" && Action.inherits( "DzScriptAction" ) ){
