@@ -112,6 +112,8 @@
 		}
 	}
 
+	beginUndo()
+
 	for(var i=0; i<aMaterial.length; i++){
 		var oFloatProperty = aMaterial[i].findPropertyByLabel("Glossiness");
 		if( oFloatProperty.inherits("DzFloatProperty") ){
@@ -120,6 +122,7 @@
 		}
 	}
 
+	acceptUndo("Reduce Glossiness");
 
 	/*********************************************************************/
 	// void : A function for updating the keyboard modifier state

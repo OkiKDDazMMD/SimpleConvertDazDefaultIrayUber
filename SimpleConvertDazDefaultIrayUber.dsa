@@ -125,6 +125,8 @@
 		}
 	}
 
+	beginUndo()
+
 	for(var i=0; i<aMaterial.length; i++){
 		var oFloatProperty = aMaterial[i].findPropertyByLabel("Glossiness");
 		if( oFloatProperty.inherits("DzFloatProperty") ){
@@ -132,6 +134,8 @@
 			oFloatProperty.setValue( nValue*nReducePar/100.0 );
 		}
 	}
+
+	acceptUndo("Reduce Glossiness");
 
 	var oContentMgr = App.getContentMgr();
 	oContentMgr.openFile(sFileName, true);
